@@ -1,9 +1,7 @@
 ﻿// WindowsProject1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
-
 #include "framework.h"
 #include "WindowsProject1.h"
-
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -17,7 +15,6 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-LPCTSTR lpszClass = L"TEXTOUT";
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -142,9 +139,6 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static int x;
-    static int y;
-    static BOOL bnowDraw = FALSE;
     HDC hdc;
     switch (message)
     {
@@ -170,34 +164,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-
+            
             
             EndPaint(hWnd, &ps);
         }
         break;
-    case WM_LBUTTONDOWN:
-        x = LOWORD(lParam);
-        y = HIWORD(lParam);
-        bnowDraw = TRUE;
-        return 0;
-    case WM_MOUSEMOVE:
-        if (bnowDraw == TRUE)
-        {
-            hdc = GetDC(hWnd);
-            MoveToEx(hdc, x, y, NULL);
-            x = LOWORD(lParam);
-            y = HIWORD(lParam);
-            LineTo(hdc, x, y);
-            ReleaseDC(hWnd, hdc);
-        }
-        return 0;
-    case WM_LBUTTONUP:
-        bnowDraw = FALSE;
-        return 0;
-    case WM_LBUTTONDBLCLK:
-        InvalidateRect(hWnd, NULL, TRUE);
+    case WM_CREATE:
+        SetTimer(hWnd, 1, 100, (TIMERPROC)TimerProc);
         return 0;
     case WM_DESTROY:
+        KillTimer(hWnd, 1);
         PostQuitMessage(0);
         break;
     default:
