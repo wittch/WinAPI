@@ -36,8 +36,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINDOWSPROJECT1));
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WINDOWSPROJECT1));
+    //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
     MSG msg;
 
     // 기본 메시지 루프입니다:
@@ -125,7 +125,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    TCHAR str[256];
+    
     switch (message)
     {
     case WM_COMMAND:
@@ -158,10 +158,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
+            HBRUSH MyBrush, OldBrush;
+            HPEN MyPen, OldPen;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            LoadString(hInst, IDS_STRING1, str, 256);
-            TextOut(hdc, 100, 100, str, wcslen(str));
+
+            MyBrush = CreateHatchBrush(HS_BDIAGONAL, RGB(255, 255, 0));
+            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
+            MyPen = CreatePen(PS_DOT, 5, RGB(0, 0, 255));
+            OldPen = (HPEN)SelectObject(hdc, MyPen);
+            Rectangle(hdc, 50, 50, 300, 200);
+            SelectObject(hdc, OldBrush);
+            SelectObject(hdc, OldPen);
+            DeleteObject(MyBrush);
+            DeleteObject(MyPen);
             EndPaint(hWnd, &ps);
         }
         break;
