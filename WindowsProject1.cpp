@@ -1,7 +1,9 @@
 ﻿// WindowsProject1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
+#define _USE_MATH_DEFINES 
 #include "framework.h"
 #include "WindowsProject1.h"
+#include <cmath>
 #define MAX_LOADSTRING 100
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -125,10 +127,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    static int sx, sy, oldx, oldy;
-    int ex, ey;
-    static BOOL bNowDraw = FALSE;
-
+    double f;
+    int y;
+    static RECT rt;
     switch (message)
     {
     case WM_COMMAND:
@@ -163,43 +164,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-
-        
+            SetMapMode(hdc, MM_LOENGLISH);
+            GetClientRect(hWnd, &rt);
+            SetViewportOrgEx(hdc, rt.right/2, rt.bottom/2, NULL);
+            MoveToEx(hdc, -2000, 0, NULL);
+            LineTo(hdc, 2000, 0);
+            MoveToEx(hdc, 0, -2000, NULL);
+            LineTo(hdc, 0, 2000);
+            for (f = -1000; f < 1000; f++)
+            {
+                y = (int)(tan(f * M_PI / 180) * 100);
+                SetPixel(hdc, (int)f, y, RGB(0, 0, 0));
+            }
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
         return 0;
-    case WM_MOUSEMOVE:
-        if (bNowDraw)
-        {
-            hdc = GetDC(hWnd);
-            SetROP2(hdc, R2_NOT);
-            MoveToEx(hdc, sx, sy, NULL);
-            LineTo(hdc, oldx, oldy);
-            ex = LOWORD(lParam);
-            ey = HIWORD(lParam);
-            MoveToEx(hdc, sx, sy, NULL);
-            LineTo(hdc, ex, ey);
-            oldx = ex;
-            oldy = ey;
-            ReleaseDC(hWnd, hdc);
-        }
-        break;
-    case WM_LBUTTONUP:
-        bNowDraw = FALSE;
-        hdc = GetDC(hWnd);
-        MoveToEx(hdc, sx, sy, NULL);
-        ReleaseDC(hWnd, hdc);
-
-        break;
-    case WM_LBUTTONDOWN:
-        sx = LOWORD(lParam);
-        sy = HIWORD(lParam);
-        oldx = sx;
-        oldy = sy;
-        bNowDraw = TRUE;
-        break;
+ 
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
 
