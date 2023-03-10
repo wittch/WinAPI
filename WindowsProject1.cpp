@@ -112,20 +112,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 
 
-// 0.1초 간격으로 호출
-void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
-{
-    HDC hdc;
-    int i;
-    hdc = GetDC(hWnd);
-    for (int i = 0; i < 100; i++)
-    {
-        SetPixel(hdc, rand() % 500, rand() % 400, RGB(rand() % 256, rand() % 256, rand() % 256));
-        
-    }
-
-    ReleaseDC(hWnd, hdc);
-}
 
 //
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -140,6 +126,8 @@ void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
+
+    static RECT rt;
     switch (message)
     {
     case WM_COMMAND:
@@ -164,16 +152,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            
+            SetTextAlign(hdc, TA_CENTER);
+            TextOut(hdc, rt.right / 2, rt.bottom / 2, L"CENTER", 6);
             
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        SetTimer(hWnd, 1, 100, (TIMERPROC)TimerProc);
+        GetClientRect(hWnd, &rt);
         return 0;
+    case WM_SIZE://윈도우의 크기가 변경될 때 호출
+        GetClientRect(hWnd, &rt);
+        InvalidateRect(hWnd, NULL, TRUE);
+
+        //같은 방법으로 lParam 이용
+        /*rt.right = LOWORD(lParam);
+        rt.bottom = HIWORD(lParam);
+        InvalidateRect(hWnd, NULL, TRUE);
+        */
+        break;
     case WM_DESTROY:
-        KillTimer(hWnd, 1);
         PostQuitMessage(0);
         break;
     default:
