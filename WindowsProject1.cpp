@@ -125,7 +125,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-
+    TCHAR str[256];
     switch (message)
     {
     case WM_COMMAND:
@@ -160,7 +160,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            
+            LoadString(hInst, IDS_STRING1, str, 256);
+            TextOut(hdc, 100, 100, str, wcslen(str));
             EndPaint(hWnd, &ps);
         }
         break;
