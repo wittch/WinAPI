@@ -125,7 +125,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    
+    static int sx, sy, oldx, oldy;
+    int ex, ey;
+    static BOOL bNowDraw = FALSE;
+
     switch (message)
     {
     case WM_COMMAND:
@@ -158,25 +161,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HBRUSH MyBrush, OldBrush;
-            HPEN MyPen, OldPen;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 
-            MyBrush = CreateHatchBrush(HS_BDIAGONAL, RGB(255, 255, 0));
-            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
-            MyPen = CreatePen(PS_DOT, 5, RGB(0, 0, 255));
-            OldPen = (HPEN)SelectObject(hdc, MyPen);
-            Rectangle(hdc, 50, 50, 300, 200);
-            SelectObject(hdc, OldBrush);
-            SelectObject(hdc, OldPen);
-            DeleteObject(MyBrush);
-            DeleteObject(MyPen);
+        
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
         return 0;
+    case WM_MOUSEMOVE:
+        if (bNowDraw)
+        {
+            hdc = GetDC(hWnd);
+            SetROP2(hdc, R2_NOT);
+            MoveToEx(hdc, sx, sy, NULL);
+            LineTo(hdc, oldx, oldy);
+            ex = LOWORD(lParam);
+            ey = HIWORD(lParam);
+            MoveToEx(hdc, sx, sy, NULL);
+            LineTo(hdc, ex, ey);
+            oldx = ex;
+            oldy = ey;
+            ReleaseDC(hWnd, hdc);
+        }
+        break;
+    case WM_LBUTTONUP:
+        bNowDraw = FALSE;
+        hdc = GetDC(hWnd);
+        MoveToEx(hdc, sx, sy, NULL);
+        ReleaseDC(hWnd, hdc);
+
+        break;
+    case WM_LBUTTONDOWN:
+        sx = LOWORD(lParam);
+        sy = HIWORD(lParam);
+        oldx = sx;
+        oldy = sy;
+        bNowDraw = TRUE;
+        break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
 
