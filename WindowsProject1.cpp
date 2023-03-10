@@ -127,8 +127,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    double f;
-    int y;
+    POINT ar[] = { 25,10,125,10,140,30,10,30,25,10 };
+    HBRUSH BrR, BrB, BrY, OldBr;
     static RECT rt;
     switch (message)
     {
@@ -164,18 +164,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            SetMapMode(hdc, MM_LOENGLISH);
+            SetMapMode(hdc, MM_ISOTROPIC);
+            SetWindowExtEx(hdc, 160, 100, NULL);
             GetClientRect(hWnd, &rt);
-            SetViewportOrgEx(hdc, rt.right/2, rt.bottom/2, NULL);
-            MoveToEx(hdc, -2000, 0, NULL);
-            LineTo(hdc, 2000, 0);
-            MoveToEx(hdc, 0, -2000, NULL);
-            LineTo(hdc, 0, 2000);
-            for (f = -1000; f < 1000; f++)
-            {
-                y = (int)(tan(f * M_PI / 180) * 100);
-                SetPixel(hdc, (int)f, y, RGB(0, 0, 0));
-            }
+            SetViewportExtEx(hdc, rt.right, rt.bottom, NULL);
+
+            BrR = CreateSolidBrush(RGB(255, 0, 0));
+            BrY = CreateSolidBrush(RGB(255, 255, 0));
+            BrB = CreateSolidBrush(RGB(0, 0, 255));
+            
+
+            OldBr = (HBRUSH)SelectObject(hdc, BrR);
+            Rectangle(hdc, 20, 30, 130, 90);
+            SelectObject(hdc, BrB);
+            Polygon(hdc, ar, 5);
+
+            SelectObject(hdc, BrY);
+            Rectangle(hdc, 30, 40, 60, 70);
+            Rectangle(hdc, 90,40,120,70);
+            Ellipse(hdc, 135, 5, 155, 25);
+
+            SelectObject(hdc, OldBr);
+            DeleteObject(BrR);
+            DeleteObject(BrB);
+            DeleteObject(BrY);
+
             EndPaint(hWnd, &ps);
         }
         break;
