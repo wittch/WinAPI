@@ -3,7 +3,6 @@
 #include "framework.h"
 #include "WindowsProject1.h"
 #define MAX_LOADSTRING 100
-
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -75,7 +74,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWSPROJECT1));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINDOWSPROJECT1);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDR_MENU1);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -127,7 +126,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
 
-    static RECT rt;
     switch (message)
     {
     case WM_COMMAND:
@@ -138,6 +136,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                break;
+            case ID_32772:
+                DestroyWindow(hWnd); 
+                
+                break;
+            case ID_32773:
+                MessageBox(hWnd, L"Menu3", L"Menu Demo", MB_OK);
+                break;
+            case ID_32774:
+                MessageBox(hWnd, L"Menu4", L"Menu Demo", MB_OK);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
@@ -152,17 +160,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            SetTextAlign(hdc, TA_CENTER);
-            TextOut(hdc, rt.right / 2, rt.bottom / 2, L"CENTER", 6);
             
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        GetClientRect(hWnd, &rt);
         return 0;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
-        GetClientRect(hWnd, &rt);
         InvalidateRect(hWnd, NULL, TRUE);
 
         //같은 방법으로 lParam 이용
