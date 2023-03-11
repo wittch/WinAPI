@@ -127,9 +127,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    POINT ar[] = { 25,10,125,10,140,30,10,30,25,10 };
-    HBRUSH BrR, BrB, BrY, OldBr;
-    static RECT rt;
+    
     switch (message)
     {
     case WM_COMMAND:
@@ -164,30 +162,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            SetMapMode(hdc, MM_ISOTROPIC);
-            SetWindowExtEx(hdc, 160, 100, NULL);
-            GetClientRect(hWnd, &rt);
-            SetViewportExtEx(hdc, rt.right, rt.bottom, NULL);
+            HFONT font, Oldfont;
+            TCHAR str[256] = L"font test 1234";
+            font = CreateFont(50, 0, 0, 0, 0, 0, 0, 0, HANGEUL_CHARSET, 0, 0, 0, 0, L"궁서");
+            Oldfont = (HFONT)SelectObject(hdc, font);
+            TextOut(hdc, 100, 100, str, wcslen(str));
+            SelectObject(hdc, Oldfont);
+            DeleteObject(font);
 
-            BrR = CreateSolidBrush(RGB(255, 0, 0));
-            BrY = CreateSolidBrush(RGB(255, 255, 0));
-            BrB = CreateSolidBrush(RGB(0, 0, 255));
-            
 
-            OldBr = (HBRUSH)SelectObject(hdc, BrR);
-            Rectangle(hdc, 20, 30, 130, 90);
-            SelectObject(hdc, BrB);
-            Polygon(hdc, ar, 5);
+            /** 다음과 같이 사용 가능*/
 
-            SelectObject(hdc, BrY);
-            Rectangle(hdc, 30, 40, 60, 70);
-            Rectangle(hdc, 90,40,120,70);
-            Ellipse(hdc, 135, 5, 155, 25);
+            /*
+            LOGFONT lf;
+            lf.lfHeight = 50;
+            lf.lfWidth = 0;
+            lf.lfEscapement = 0;
+            lf.lfOrientation = 0;
+            lf.lfWeight = 0;
+            lf.lfItalic = 0;
+            lf.lfUnderline = 0;
+            lf.lfStrikeOut = 0;
+            lf.lfCharSet = HANGEUL_CHARSET;
+            lf.lfOutPrecision = 0;
+            lf.lfClipPrecision = 0;
+            lf.lfQuality = 0;
+            lf.lfPitchAndFamily = 0;
+            strcpy(lf.lfFaceName, "궁서");
+            font=CreateFontIndirect(&lf);
+            oldfont=(HFONT)SelectObject(hdc,font);
+            TextOut(hdc, 100,100,str,strlen(str));
+            SelectObject(hdc,oldfont);
+            DeleteObject(font);
+            */
 
-            SelectObject(hdc, OldBr);
-            DeleteObject(BrR);
-            DeleteObject(BrB);
-            DeleteObject(BrY);
 
             EndPaint(hWnd, &ps);
         }
