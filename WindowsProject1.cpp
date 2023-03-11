@@ -163,39 +163,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
             HFONT font, Oldfont;
+            HBRUSH MyBrush, OldBrush;
+            MyBrush = CreateHatchBrush(HS_CROSS, RGB(0, 0, 255));
+            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
+            Rectangle(hdc, 50, 50, 500, 200);
+
             TCHAR str[256] = L"font test 1234";
-            font = CreateFont(50, 0, 0, 0, 0, 0, 0, 0, HANGEUL_CHARSET, 0, 0, 0, 0, L"궁서");
-            Oldfont = (HFONT)SelectObject(hdc, font);
-            TextOut(hdc, 100, 100, str, wcslen(str));
-            SelectObject(hdc, Oldfont);
-            DeleteObject(font);
+            for (int i = 0; i < 900; i += 100)
+            {
+                font = CreateFont(50, 0, i, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, VARIABLE_PITCH | FF_SWISS, L"Times New Roman");
+                Oldfont = (HFONT)SelectObject(hdc, font);
+                SetTextColor(hdc, RGB(255, 0, 0));
+                SetBkColor(hdc, RGB(255, 255, 0));
+                TextOut(hdc, i, 450, str, wcslen(str));
+                SetBkMode(hdc, TRANSPARENT);
+                TextOut(hdc, 100, 150, str, wcslen(str));
 
-
-            /** 다음과 같이 사용 가능*/
-
-            /*
-            LOGFONT lf;
-            lf.lfHeight = 50;
-            lf.lfWidth = 0;
-            lf.lfEscapement = 0;
-            lf.lfOrientation = 0;
-            lf.lfWeight = 0;
-            lf.lfItalic = 0;
-            lf.lfUnderline = 0;
-            lf.lfStrikeOut = 0;
-            lf.lfCharSet = HANGEUL_CHARSET;
-            lf.lfOutPrecision = 0;
-            lf.lfClipPrecision = 0;
-            lf.lfQuality = 0;
-            lf.lfPitchAndFamily = 0;
-            strcpy(lf.lfFaceName, "궁서");
-            font=CreateFontIndirect(&lf);
-            oldfont=(HFONT)SelectObject(hdc,font);
-            TextOut(hdc, 100,100,str,strlen(str));
-            SelectObject(hdc,oldfont);
-            DeleteObject(font);
-            */
-
+                SelectObject(hdc, Oldfont);
+                DeleteObject(font);
+            }
+            SelectObject(hdc, OldBrush);
+            DeleteObject(MyBrush);
 
             EndPaint(hWnd, &ps);
         }
