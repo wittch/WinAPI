@@ -5,7 +5,18 @@
 #include "WindowsProject1.h"
 #include <cmath>
 #define MAX_LOADSTRING 100
+
+#define ID_R1 101
+#define ID_R2 102
+#define ID_R3 103
+#define ID_R4 1014
+#define ID_R5 1015
+#define ID_R6 1016
+
 // 전역 변수:
+int GRAPH = 0;
+int COLOR = 0;
+
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
@@ -127,57 +138,75 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    static HWND c1, c2, c3, c4;
+    static HWND r1,r2,r3,r4,r5,r6;
     static BOOL ELLIPSE = FALSE;
-
+    HBRUSH MyBrush = nullptr;
+    HBRUSH OldBrush = nullptr;
     switch (message)
     {
     case WM_COMMAND:
         {
-            int wmId = LOWORD(wParam);
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId)
+            /*if (HIWORD(lParam) == BN_CLICKED)
             {
-            // 체크박스 수동으로 변경하는 코드 1,3번 체크박스는 자동으로 설정해 주었기에 BM_GETCHECK로 사용 시 체크상태만 확인하면 된다.
-            case 0:
-                if (SendMessage(c1, BM_GETCHECK, 0, 0) == BST_UNCHECKED) 
+                switch (LOWORD(wParam))
                 {
-                    SendMessage(c1, BM_SETCHECK, BST_CHECKED, 0);
-                    ELLIPSE = TRUE;
-                }
-                else
-                {
-                    SendMessage(c1, BM_SETCHECK, BST_UNCHECKED, 0);
-                    ELLIPSE = FALSE;
+                case ID_R1:
+                    GRAPH = 0;
+                    break;
+                case ID_R2:
+                    GRAPH = 1;
+                    break;
+                case ID_R3:
+                    GRAPH = 2;
+                    break;
+                case ID_R4:
+                    COLOR = 0;
+                    break;
+                case ID_R5:
+                    COLOR = 1;
+                    break;
+                case ID_R6:
+                    COLOR = 2;
+                    break;
                 }
                 InvalidateRect(hWnd, NULL, TRUE);
-                break;
-            case 2:
-                if (SendMessage(c3, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+            }*/
+            //else {
+                int wmId = LOWORD(wParam);
+                // 메뉴 선택을 구문 분석합니다:
+                switch (wmId)
                 {
-                    SendMessage(c3, BM_SETCHECK, BST_CHECKED, 0);
+
+                case IDM_ABOUT:
+                    DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                    break;
+                case IDM_EXIT:
+                    DestroyWindow(hWnd);
+                    break;
+                case ID_R1:
+                    GRAPH = 0;
+                    break;
+                case ID_R2:
+                    GRAPH = 1;
+                    break;
+                case ID_R3:
+                    GRAPH = 2;
+                    break;
+                case ID_R4:
+                    COLOR = 0;
+                    break;
+                case ID_R5:
+                    COLOR = 1;
+                    break;
+                case ID_R6:
+                    COLOR = 2;
+                    break;
+
+                default:
+                    return DefWindowProc(hWnd, message, wParam, lParam);
                 }
-                else
-                {
-                    if (SendMessage(c3, BM_GETCHECK, 0, 0) == BST_INDETERMINATE)
-                    {
-                        SendMessage(c3, BM_SETCHECK, BST_UNCHECKED, 0);
-                    }
-                    else
-                    {
-                        SendMessage(c3, BM_SETCHECK, BST_INDETERMINATE, 0);
-                    }
-                }
-                break;
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+                InvalidateRect(hWnd, NULL, TRUE);
+            //}
         }
         break;
     case WM_PAINT:
@@ -185,24 +214,52 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            if (ELLIPSE == TRUE)
+            switch (COLOR)
             {
-                Ellipse(hdc, 200, 100, 400, 200);
+            case 0:
+                MyBrush = CreateSolidBrush(RGB(0, 0, 0));
+                break;
+            case 1:
+                MyBrush = CreateSolidBrush(RGB(255, 0, 0));
+                break;
+            case 2:
+                MyBrush = CreateSolidBrush(RGB(0, 0, 255));
+                break;
             }
-            else
+            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
+            switch (GRAPH)
             {
-                Rectangle(hdc, 200, 100, 400, 200);
+            case 0:
+                Rectangle(hdc, 10, 200, 200, 300);
+                break;
+            case 1:
+                Ellipse(hdc, 10, 200, 200, 300);
+                break;
+            case 2:
+                MoveToEx(hdc, 10, 200, NULL);
+                LineTo(hdc, 200, 300);
+                break;
             }
+            SelectObject(hdc, OldBrush);
+            DeleteObject(MyBrush);
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        c1 = CreateWindow(L"button", L"Draw Ellipse?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX, 20, 20, 160, 25, hWnd, (HMENU)0, hInst, NULL);
-        c2 = CreateWindow(L"button", L"Good Bye Message?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 20, 50, 160, 25, hWnd, (HMENU)1, hInst, NULL);
-        c3 = CreateWindow(L"button", L"3State", WS_CHILD | WS_VISIBLE | BS_3STATE, 20, 80, 160, 25, hWnd, (HMENU)2, hInst, NULL);
-        c3 = CreateWindow(L"button", L"AUTO 3State", WS_CHILD | WS_VISIBLE | BS_AUTO3STATE, 20, 110, 160, 25, hWnd, (HMENU)2, hInst, NULL);
-        return 0;
+        CreateWindow(L"button", L"Graph", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 5, 5, 120, 110, hWnd, (HMENU)0, hInst, NULL);
+        CreateWindow(L"button", L"Color", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 145, 5, 120, 110, hWnd, (HMENU)0, hInst, NULL);
+        r1 = CreateWindow(L"Button", L"Rectangle", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 10, 20, 100, 30, hWnd, (HMENU)ID_R1, hInst, NULL);
+        r2 = CreateWindow(L"Button", L"Ellipse", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON , 10, 50, 100, 30, hWnd, (HMENU)ID_R2, hInst, NULL);
+        r3 = CreateWindow(L"Button", L"Line", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 10, 80, 100, 30, hWnd, (HMENU)ID_R3, hInst, NULL);
+
+
+        r4 = CreateWindow(L"Button", L"Black", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150,20, 100, 30, hWnd, (HMENU)ID_R4, hInst, NULL);
+        r5 = CreateWindow(L"Button", L"Red", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 150, 50, 100, 30, hWnd, (HMENU)ID_R5, hInst, NULL);
+        r6 = CreateWindow(L"Button", L"Blue", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 150, 80, 100, 30, hWnd, (HMENU)ID_R6, hInst, NULL);
+        CheckRadioButton(hWnd, ID_R1, ID_R3, ID_R1);
+        CheckRadioButton(hWnd, ID_R4, ID_R6, ID_R4);
+        break;
  
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
@@ -214,10 +271,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         */
         break;
     case WM_DESTROY:
-        if (SendMessage(c2, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        {
-            MessageBox(hWnd, L"Good Bye", L"Check", MB_OK);
-        }
         PostQuitMessage(0);
         break;
     default:
