@@ -127,7 +127,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    
+    static HWND c1, c2, c3, c4;
+    static BOOL ELLIPSE = FALSE;
+
     switch (message)
     {
     case WM_COMMAND:
@@ -136,11 +138,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
+            // 체크박스 수동으로 변경하는 코드 1,3번 체크박스는 자동으로 설정해 주었기에 BM_GETCHECK로 사용 시 체크상태만 확인하면 된다.
             case 0:
-                MessageBox(hWnd, L"First Button Clicked", L"Button", MB_OK);
+                if (SendMessage(c1, BM_GETCHECK, 0, 0) == BST_UNCHECKED) 
+                {
+                    SendMessage(c1, BM_SETCHECK, BST_CHECKED, 0);
+                    ELLIPSE = TRUE;
+                }
+                else
+                {
+                    SendMessage(c1, BM_SETCHECK, BST_UNCHECKED, 0);
+                    ELLIPSE = FALSE;
+                }
+                InvalidateRect(hWnd, NULL, TRUE);
                 break;
-            case 1:
-                MessageBox(hWnd, L"Second Button Clicked", L"Button", MB_OK);
+            case 2:
+                if (SendMessage(c3, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+                {
+                    SendMessage(c3, BM_SETCHECK, BST_CHECKED, 0);
+                }
+                else
+                {
+                    if (SendMessage(c3, BM_GETCHECK, 0, 0) == BST_INDETERMINATE)
+                    {
+                        SendMessage(c3, BM_SETCHECK, BST_UNCHECKED, 0);
+                    }
+                    else
+                    {
+                        SendMessage(c3, BM_SETCHECK, BST_INDETERMINATE, 0);
+                    }
+                }
                 break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -158,14 +185,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-      
+            if (ELLIPSE == TRUE)
+            {
+                Ellipse(hdc, 200, 100, 400, 200);
+            }
+            else
+            {
+                Rectangle(hdc, 200, 100, 400, 200);
+            }
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        CreateWindow(L"button", L"Click Me", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 20, 20, 100, 25, hWnd, (HMENU)0, hInst, NULL);
-        CreateWindow(L"button", L"Click Me too", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 20, 50, 100, 25, hWnd, (HMENU)1, hInst, NULL);
+        c1 = CreateWindow(L"button", L"Draw Ellipse?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX, 20, 20, 160, 25, hWnd, (HMENU)0, hInst, NULL);
+        c2 = CreateWindow(L"button", L"Good Bye Message?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 20, 50, 160, 25, hWnd, (HMENU)1, hInst, NULL);
+        c3 = CreateWindow(L"button", L"3State", WS_CHILD | WS_VISIBLE | BS_3STATE, 20, 80, 160, 25, hWnd, (HMENU)2, hInst, NULL);
+        c3 = CreateWindow(L"button", L"AUTO 3State", WS_CHILD | WS_VISIBLE | BS_AUTO3STATE, 20, 110, 160, 25, hWnd, (HMENU)2, hInst, NULL);
         return 0;
  
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
@@ -178,6 +214,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         */
         break;
     case WM_DESTROY:
+        if (SendMessage(c2, BM_GETCHECK, 0, 0) == BST_CHECKED)
+        {
+            MessageBox(hWnd, L"Good Bye", L"Check", MB_OK);
+        }
         PostQuitMessage(0);
         break;
     default:
