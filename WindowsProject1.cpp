@@ -136,18 +136,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
+            case 0:
+                MessageBox(hWnd, L"First Button Clicked", L"Button", MB_OK);
+                break;
+            case 1:
+                MessageBox(hWnd, L"Second Button Clicked", L"Button", MB_OK);
+                break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case ID_32772:
-                DestroyWindow(hWnd); 
-                
-                break;
-            case ID_32773:
-                MessageBox(hWnd, L"Menu3", L"Menu Demo", MB_OK);
-                break;
-            case ID_32774:
-                MessageBox(hWnd, L"Menu4", L"Menu Demo", MB_OK);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
@@ -162,33 +158,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            HFONT font, Oldfont;
-            HBRUSH MyBrush, OldBrush;
-            MyBrush = CreateHatchBrush(HS_CROSS, RGB(0, 0, 255));
-            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
-            Rectangle(hdc, 50, 50, 500, 200);
-
-            TCHAR str[256] = L"font test 1234";
-            for (int i = 0; i < 900; i += 100)
-            {
-                font = CreateFont(50, 0, i, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, VARIABLE_PITCH | FF_SWISS, L"Times New Roman");
-                Oldfont = (HFONT)SelectObject(hdc, font);
-                SetTextColor(hdc, RGB(255, 0, 0));
-                SetBkColor(hdc, RGB(255, 255, 0));
-                TextOut(hdc, i, 450, str, wcslen(str));
-                SetBkMode(hdc, TRANSPARENT);
-                TextOut(hdc, 100, 150, str, wcslen(str));
-
-                SelectObject(hdc, Oldfont);
-                DeleteObject(font);
-            }
-            SelectObject(hdc, OldBrush);
-            DeleteObject(MyBrush);
+      
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
+        CreateWindow(L"button", L"Click Me", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 20, 20, 100, 25, hWnd, (HMENU)0, hInst, NULL);
+        CreateWindow(L"button", L"Click Me too", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 20, 50, 100, 25, hWnd, (HMENU)1, hInst, NULL);
         return 0;
  
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
