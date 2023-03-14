@@ -6,14 +6,11 @@
 #include <cmath>
 #define MAX_LOADSTRING 100
 
-#define ID_R1 101
-#define ID_R2 102
-#define ID_R3 103
-#define ID_R4 1014
-#define ID_R5 1015
-#define ID_R6 1016
+#define ID_EDIT 101
+
 
 // 전역 변수:
+HWND hEdit;
 int GRAPH = 0;
 int COLOR = 0;
 
@@ -138,75 +135,39 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    static HWND r1,r2,r3,r4,r5,r6;
-    static BOOL ELLIPSE = FALSE;
+    int nTop = 10;
+    BOOL bShow = TRUE;
+    TCHAR str[256] =L"왼쪽 클릭 : 에디트 이동, 오른쪽 클릭 : 보임/숨김";
     HBRUSH MyBrush = nullptr;
     HBRUSH OldBrush = nullptr;
     switch (message)
     {
     case WM_COMMAND:
         {
-            /*if (HIWORD(lParam) == BN_CLICKED)
+            
+            int wmId = LOWORD(wParam);
+            // 메뉴 선택을 구문 분석합니다:
+            switch (wmId)
             {
-                switch (LOWORD(wParam))
+            case ID_EDIT:
+                switch (HIWORD(wParam))
                 {
-                case ID_R1:
-                    GRAPH = 0;
-                    break;
-                case ID_R2:
-                    GRAPH = 1;
-                    break;
-                case ID_R3:
-                    GRAPH = 2;
-                    break;
-                case ID_R4:
-                    COLOR = 0;
-                    break;
-                case ID_R5:
-                    COLOR = 1;
-                    break;
-                case ID_R6:
-                    COLOR = 2;
-                    break;
+                case EN_CHANGE:
+                    GetWindowText(hEdit, str, 128);
+                    SetWindowText(hWnd, str);
                 }
-                InvalidateRect(hWnd, NULL, TRUE);
-            }*/
-            //else {
-                int wmId = LOWORD(wParam);
-                // 메뉴 선택을 구문 분석합니다:
-                switch (wmId)
-                {
+                break;
+            case IDM_ABOUT:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                break;
+            case IDM_EXIT:
+                DestroyWindow(hWnd);
+                break;
 
-                case IDM_ABOUT:
-                    DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                    break;
-                case IDM_EXIT:
-                    DestroyWindow(hWnd);
-                    break;
-                case ID_R1:
-                    GRAPH = 0;
-                    break;
-                case ID_R2:
-                    GRAPH = 1;
-                    break;
-                case ID_R3:
-                    GRAPH = 2;
-                    break;
-                case ID_R4:
-                    COLOR = 0;
-                    break;
-                case ID_R5:
-                    COLOR = 1;
-                    break;
-                case ID_R6:
-                    COLOR = 2;
-                    break;
-
-                default:
-                    return DefWindowProc(hWnd, message, wParam, lParam);
-                }
-                InvalidateRect(hWnd, NULL, TRUE);
-            //}
+            default:
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+            InvalidateRect(hWnd, NULL, TRUE);
         }
         break;
     case WM_PAINT:
@@ -214,53 +175,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            switch (COLOR)
-            {
-            case 0:
-                MyBrush = CreateSolidBrush(RGB(0, 0, 0));
-                break;
-            case 1:
-                MyBrush = CreateSolidBrush(RGB(255, 0, 0));
-                break;
-            case 2:
-                MyBrush = CreateSolidBrush(RGB(0, 0, 255));
-                break;
-            }
-            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
-            switch (GRAPH)
-            {
-            case 0:
-                Rectangle(hdc, 10, 200, 200, 300);
-                break;
-            case 1:
-                Ellipse(hdc, 10, 200, 200, 300);
-                break;
-            case 2:
-                MoveToEx(hdc, 10, 200, NULL);
-                LineTo(hdc, 200, 300);
-                break;
-            }
-            SelectObject(hdc, OldBrush);
-            DeleteObject(MyBrush);
+            TextOut(hdc, 200, 100, str, wcslen(str));
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        CreateWindow(L"button", L"Graph", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 5, 5, 120, 110, hWnd, (HMENU)0, hInst, NULL);
-        CreateWindow(L"button", L"Color", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 145, 5, 120, 110, hWnd, (HMENU)0, hInst, NULL);
-        r1 = CreateWindow(L"Button", L"Rectangle", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 10, 20, 100, 30, hWnd, (HMENU)ID_R1, hInst, NULL);
-        r2 = CreateWindow(L"Button", L"Ellipse", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON , 10, 50, 100, 30, hWnd, (HMENU)ID_R2, hInst, NULL);
-        r3 = CreateWindow(L"Button", L"Line", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 10, 80, 100, 30, hWnd, (HMENU)ID_R3, hInst, NULL);
-
-
-        r4 = CreateWindow(L"Button", L"Black", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150,20, 100, 30, hWnd, (HMENU)ID_R4, hInst, NULL);
-        r5 = CreateWindow(L"Button", L"Red", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 150, 50, 100, 30, hWnd, (HMENU)ID_R5, hInst, NULL);
-        r6 = CreateWindow(L"Button", L"Blue", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 150, 80, 100, 30, hWnd, (HMENU)ID_R6, hInst, NULL);
-        CheckRadioButton(hWnd, ID_R1, ID_R3, ID_R1);
-        CheckRadioButton(hWnd, ID_R4, ID_R6, ID_R4);
+        hEdit = CreateWindow(L"edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 10, 10, 200, 25, hWnd, (HMENU)ID_EDIT, hInst, NULL);
+        SetWindowText(hEdit, L"에디트도 윈도우다");
         break;
- 
+    case WM_LBUTTONDOWN:
+        nTop += 10;
+        MoveWindow(hEdit, 10, nTop, 200, 25, TRUE);
+        return 0;
+    case WM_RBUTTONDOWN:
+        if (bShow)
+        {
+            bShow = FALSE;
+            ShowWindow(hEdit, SW_HIDE);
+        }
+        else
+        {
+            bShow = TRUE;
+            ShowWindow(hEdit, SW_SHOW);
+        }
+        return 0;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
 
