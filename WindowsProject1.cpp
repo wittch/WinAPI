@@ -10,7 +10,7 @@
 
 
 // 전역 변수:
-HWND hList;
+HWND hCombo;
 int GRAPH = 0;
 int COLOR = 0;
 
@@ -158,15 +158,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
 
 
-
-
-
             case ID_LISTBOX:
                 switch (HIWORD(wParam))
                 {
-                case LBN_SELCHANGE:
-                    i = SendMessage(hList, LB_GETCURSEL, 0, 0);
-                    SendMessage(hList, LB_GETTEXT, i, (LPARAM)str);
+                case CBN_SELCHANGE:
+                    i = SendMessage(hCombo, CB_GETCURSEL, 0, 0);
+                    SendMessage(hCombo, CB_GETLBTEXT, i, (LPARAM)str);
+                    SetWindowText(hWnd, str);
+                    break;
+                case CBN_EDITCHANGE:
+                    GetWindowText(hCombo, str, 128);
                     SetWindowText(hWnd, str);
                     break;
                 }
@@ -191,10 +192,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_CREATE:
-        hList = CreateWindow(L"listbox", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LBS_NOTIFY, 10, 10, 100, 200, hWnd, (HMENU)ID_LISTBOX, hInst, NULL);
+        hCombo = CreateWindow(L"combobox", NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 10, 10, 100, 200, hWnd, (HMENU)ID_LISTBOX, hInst, NULL);
         for (i = 0; i < 5; i++)
         {
-            SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)Items[i]);
+            SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)Items[i]);
         }
         break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
