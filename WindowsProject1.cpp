@@ -6,11 +6,11 @@
 #include <cmath>
 #define MAX_LOADSTRING 100
 
-#define ID_EDIT 101
+#define ID_LISTBOX 101
 
 
 // 전역 변수:
-HWND hEdit;
+HWND hList;
 int GRAPH = 0;
 int COLOR = 0;
 
@@ -135,9 +135,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    int nTop = 10;
+    int i = 0;
     BOOL bShow = TRUE;
-    TCHAR str[256] =L"왼쪽 클릭 : 에디트 이동, 오른쪽 클릭 : 보임/숨김";
+    TCHAR Items[][15] = { L"Apple",L"Orange",L"Melon",L"Graph",L"Strawberry" };
+    TCHAR str[128];
     HBRUSH MyBrush = nullptr;
     HBRUSH OldBrush = nullptr;
     switch (message)
@@ -149,20 +150,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
-            case ID_EDIT:
-                switch (HIWORD(wParam))
-                {
-                case EN_CHANGE:
-                    GetWindowText(hEdit, str, 128);
-                    SetWindowText(hWnd, str);
-                }
-                break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
+
+
+
+
+
+            case ID_LISTBOX:
+                switch (HIWORD(wParam))
+                {
+                case LBN_SELCHANGE:
+                    i = SendMessage(hList, LB_GETCURSEL, 0, 0);
+                    SendMessage(hList, LB_GETTEXT, i, (LPARAM)str);
+                    SetWindowText(hWnd, str);
+                    break;
+                }
+            break;
+
+
 
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -175,31 +185,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            TextOut(hdc, 200, 100, str, wcslen(str));
+            
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        hEdit = CreateWindow(L"edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 10, 10, 200, 25, hWnd, (HMENU)ID_EDIT, hInst, NULL);
-        SetWindowText(hEdit, L"에디트도 윈도우다");
+        hList = CreateWindow(L"listbox", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LBS_NOTIFY, 10, 10, 100, 200, hWnd, (HMENU)ID_LISTBOX, hInst, NULL);
+        for (i = 0; i < 5; i++)
+        {
+            SendMessage(hList, LB_ADDSTRING, 0, (LPARAM)Items[i]);
+        }
         break;
-    case WM_LBUTTONDOWN:
-        nTop += 10;
-        MoveWindow(hEdit, 10, nTop, 200, 25, TRUE);
-        return 0;
-    case WM_RBUTTONDOWN:
-        if (bShow)
-        {
-            bShow = FALSE;
-            ShowWindow(hEdit, SW_HIDE);
-        }
-        else
-        {
-            bShow = TRUE;
-            ShowWindow(hEdit, SW_SHOW);
-        }
-        return 0;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
 
