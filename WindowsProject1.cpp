@@ -136,13 +136,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    int TempPos = 0;
     
-    BOOL bShow = TRUE;
-    TCHAR Items[][15] = { L"Apple",L"Orange",L"Melon",L"Graph",L"Strawberry" };
-    TCHAR str[128];
-    HBRUSH MyBrush = nullptr;
-    HBRUSH OldBrush = nullptr;
     switch (message)
     {
     case WM_COMMAND:
@@ -170,56 +164,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            MyBrush = CreateSolidBrush(RGB(Red, Green, Blue));
-            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
-            Rectangle(hdc, 10, 100, 210, 200);
-            SelectObject(hdc, OldBrush);
-            DeleteObject(MyBrush);
+            
+
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_CREATE:
-        hRed = CreateWindow(L"scrollbar", NULL, WS_CHILD | WS_VISIBLE | SBS_HORZ, 10, 10, 200, 20, hWnd, (HMENU)ID_SCRRED, hInst, NULL);
-        hGreen = CreateWindow(L"scrollbar", NULL, WS_CHILD | WS_VISIBLE | SBS_HORZ, 10, 40, 200, 20, hWnd, (HMENU)ID_SCRGREEN, hInst, NULL);
-        hBlue = CreateWindow(L"scrollbar", NULL, WS_CHILD | WS_VISIBLE | SBS_HORZ, 10, 70, 200, 20, hWnd, (HMENU)ID_SCRBLUE, hInst, NULL);
-        SetScrollRange(hRed, SB_CTL, 0, 255, TRUE);
-        SetScrollPos(hRed, SB_CTL, 0, TRUE);
-        
-        SetScrollRange(hGreen, SB_CTL, 0, 255, TRUE);
-        SetScrollPos(hGreen, SB_CTL, 0, TRUE);
-
-        SetScrollRange(hBlue, SB_CTL, 0, 255, TRUE);
-        SetScrollPos(hBlue, SB_CTL, 0, TRUE);
-        break;
-    case WM_HSCROLL:
-        if ((HWND)lParam == hRed) TempPos = Red;
-        if ((HWND)lParam == hGreen) TempPos = Green;
-        if ((HWND)lParam == hBlue) TempPos = Blue;
-
-        switch (LOWORD(wParam))
-        {
-        case SB_LINELEFT:
-            TempPos = max(0, TempPos - 1);
-            break;
-        case SB_LINERIGHT:
-            TempPos = min(255, TempPos + 1);
-            break;
-        case SB_PAGELEFT:
-            TempPos = max(0, TempPos - 10);
-            break;
-        case SB_PAGERIGHT:
-            TempPos = min(255, TempPos + 10);
-            break;
-        case SB_THUMBTRACK:
-            TempPos = HIWORD(wParam);
-            break;
-        }
-
-        if ((HWND)lParam == hRed) Red = TempPos;
-        if ((HWND)lParam == hGreen)  Green = TempPos;
-        if ((HWND)lParam == hBlue) Blue = TempPos;
-        SetScrollPos((HWND)lParam, SB_CTL, TempPos, TRUE);
-        InvalidateRect(hWnd, NULL, FALSE);
+        CreateWindow(L"static", L"Only Text", WS_CHILD | WS_VISIBLE, 20, 20, 100, 25, hWnd, (HMENU)-1, hInst, NULL);
         break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
