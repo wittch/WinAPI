@@ -5,13 +5,14 @@
 #include "WindowsProject1.h"
 #include <cmath>
 #include "resource.h"
+#include <commdlg.h>
 #define MAX_LOADSTRING 100
 
 int x;
 int y;
 HWND hDlg;
 HWND hMainWnd;
-WCHAR str[128];
+COLORREF Color = RGB(0, 0, 255);
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -119,36 +120,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-
-BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        SetDlgItemText(hDlg, IDC_STR, str);
-        SetDlgItemInt(hDlg, IDC_X, x, FALSE);
-        SetDlgItemInt(hDlg, IDC_Y, y, FALSE);
-        return TRUE;
-    case WM_COMMAND:
-        int wmId = LOWORD(wParam);
-        switch (wmId)
-        {
-        case ID_CHANGE:
-            GetDlgItemText(hDlg, IDC_STR, str, 128);
-            x = GetDlgItemInt(hDlg, IDC_X, NULL, FALSE);
-            y = GetDlgItemInt(hDlg, IDC_Y, NULL, FALSE);
-            InvalidateRect(hMainWnd, NULL, TRUE);
-            return TRUE;
-        case ID_CLOSE:
-            DestroyWindow(hDlg);
-            hDlg = NULL;
-            return TRUE;
-        }
-        break;
-    }
-    return FALSE;
-}
-
 //
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -162,7 +133,12 @@ BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    
+    OPENFILENAME OFN;
+    TCHAR str[300];
+    TCHAR lpstrFile[MAX_PATH] = L"";
+    HBRUSH MyBrush, OldBrush;
+    CHOOSECOLOR COL;
+    COLORREF crTemp[16];
     switch (message)
     {
     case WM_COMMAND:
@@ -190,18 +166,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            TextOut(hdc, x, y, str, wcslen(str));
-
-
+            MyBrush = CreateSolidBrush(Color);
+            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
+            Rectangle(hdc, 10, 10, 300, 200);
+            SelectObject(hdc, OldBrush);
+            DeleteObject(MyBrush);
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_LBUTTONDOWN:
-        if (!IsWindow(hDlg)) {
-            hDlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG1),hWnd,AboutDlgProc);
-            ShowWindow(hDlg, SW_SHOW);
+        memset(&OFN, 0, sizeof(OPENFILENAME));
+        OFN.lStructSize = sizeof(OPENFILENAME);
+        OFN.hwndOwner = hWnd;
+        OFN.lpstrFilter = L"Every File(*.*)\0*.*\0Text File\0*.txt;*.doc\0";
+        OFN.lpstrFile = lpstrFile;
+        OFN.nMaxFile = 256;
+        OFN.lpstrInitialDir = L"c:\\";
+        if (GetOpenFileName(&OFN) != 0)
+        {
+            wsprintf(str, L"%s File is selected.", OFN.lpstrFile);
+            MessageBox(hWnd, str, L"Open File Success!", MB_OK);
         }
         break;
+    case WM_RBUTTONDOWN:
+        memset(&COL, 0, sizeof(CHOOSECOLOR));
+        COL.lStructSize = sizeof(CHOOSECOLOR);
+        COL.hwndOwner = hWnd;
+        COL.lpCustColors = crTemp;
+        COL.Flags = 0;
+        if (ChooseColor(&COL) != 0)
+        {
+            Color = COL.rgbResult;
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
 
