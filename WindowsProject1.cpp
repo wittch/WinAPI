@@ -8,11 +8,8 @@
 #include <commdlg.h>
 #define MAX_LOADSTRING 100
 
-int x;
-int y;
-HWND hDlg;
-HWND hMainWnd;
-COLORREF Color = RGB(0, 0, 255);
+LOGFONT lf;
+WCHAR str[] = L"폰트 대화상자 Test 1234";
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -115,7 +112,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
-   hMainWnd = hWnd;
 
    return TRUE;
 }
@@ -133,12 +129,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    OPENFILENAME OFN;
-    TCHAR str[300];
-    TCHAR lpstrFile[MAX_PATH] = L"";
-    HBRUSH MyBrush, OldBrush;
-    CHOOSECOLOR COL;
-    COLORREF crTemp[16];
+    CHOOSEFONT CFT;
+    HFONT MyFont, OldFont;
     switch (message)
     {
     case WM_COMMAND:
@@ -166,39 +158,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            MyBrush = CreateSolidBrush(Color);
-            OldBrush = (HBRUSH)SelectObject(hdc, MyBrush);
-            Rectangle(hdc, 10, 10, 300, 200);
-            SelectObject(hdc, OldBrush);
-            DeleteObject(MyBrush);
+            MyFont = CreateFontIndirect(&lf);
+            OldFont = (HFONT)SelectObject(hdc, MyFont);
+            TextOut(hdc, 100, 100, str, wcslen(str));
+            SelectObject(hdc, OldFont);
+            DeleteObject(MyFont);
             EndPaint(hWnd, &ps);
         }
         break;
-    case WM_LBUTTONDOWN:
-        memset(&OFN, 0, sizeof(OPENFILENAME));
-        OFN.lStructSize = sizeof(OPENFILENAME);
-        OFN.hwndOwner = hWnd;
-        OFN.lpstrFilter = L"Every File(*.*)\0*.*\0Text File\0*.txt;*.doc\0";
-        OFN.lpstrFile = lpstrFile;
-        OFN.nMaxFile = 256;
-        OFN.lpstrInitialDir = L"c:\\";
-        if (GetOpenFileName(&OFN) != 0)
-        {
-            wsprintf(str, L"%s File is selected.", OFN.lpstrFile);
-            MessageBox(hWnd, str, L"Open File Success!", MB_OK);
-        }
+    case WM_CREATE:
+        lf.lfHeight = 20;
+        wcscpy_s(lf.lfFaceName, L"명조");
         break;
-    case WM_RBUTTONDOWN:
-        memset(&COL, 0, sizeof(CHOOSECOLOR));
-        COL.lStructSize = sizeof(CHOOSECOLOR);
-        COL.hwndOwner = hWnd;
-        COL.lpCustColors = crTemp;
-        COL.Flags = 0;
-        if (ChooseColor(&COL) != 0)
+    case WM_LBUTTONDOWN:
+        memset(&CFT, 0, sizeof(CHOOSEFONT));
+        CFT.lStructSize = sizeof(CHOOSEFONT);
+        CFT.hwndOwner = hWnd;
+        CFT.lpLogFont = &lf;
+        CFT.Flags = CF_EFFECTS | CF_SCREENFONTS;
+        if (ChooseFont(&CFT))
         {
-            Color = COL.rgbResult;
             InvalidateRect(hWnd, NULL, TRUE);
         }
+        break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
 
