@@ -7,7 +7,9 @@
 #include "resource.h"
 #define MAX_LOADSTRING 100
 
-
+int x;
+int y;
+WCHAR str[128];
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -79,7 +81,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WINDOWSPROJECT1));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDR_MENU1);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WINDOWSPROJECT1);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -120,12 +122,20 @@ BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
     switch (message)
     {
     case WM_INITDIALOG:
+        SetDlgItemText(hDlg, IDC_STR, str);
+        SetDlgItemInt(hDlg, IDC_X, x, FALSE);
+        SetDlgItemInt(hDlg, IDC_Y, y, FALSE);
         return TRUE;
     case WM_COMMAND:
         int wmId = LOWORD(wParam);
         switch (wmId)
         {
         case IDOK:
+            GetDlgItemText(hDlg, IDC_STR, str, 128);
+            x = GetDlgItemInt(hDlg, IDC_X, NULL, FALSE);
+            y = GetDlgItemInt(hDlg, IDC_Y, NULL, FALSE);
+            EndDialog(hDlg, 1);
+            return TRUE;
         case IDCANCEL:
             EndDialog(hDlg, 0);
             return TRUE;
@@ -176,13 +186,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            
+            TextOut(hdc, x, y, str, wcslen(str));
+
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_LBUTTONDOWN:
-        DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, AboutDlgProc);
+        if (DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, AboutDlgProc) == 1)
+        {
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
         break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
