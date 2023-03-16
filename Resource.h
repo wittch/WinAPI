@@ -17,6 +17,7 @@
 #define IDR_MENU1                       129
 #define IDI_ICON1                       130
 #define IDR_ACCELERATOR1                131
+#define IDD_DIALOG1                     132
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -29,7 +30,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32780
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110

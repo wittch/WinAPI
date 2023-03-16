@@ -4,17 +4,11 @@
 #include "framework.h"
 #include "WindowsProject1.h"
 #include <cmath>
+#include "resource.h"
 #define MAX_LOADSTRING 100
-#define ID_SCRRED 101
-#define ID_SCRGREEN 102
-#define ID_SCRBLUE 103
 
-int Red, Green, Blue;
+
 // 전역 변수:
-HWND hRed,hGreen,hBlue;
-int GRAPH = 0;
-int COLOR = 0;
-
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
@@ -121,7 +115,25 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 
 
-
+BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return TRUE;
+    case WM_COMMAND:
+        int wmId = LOWORD(wParam);
+        switch (wmId)
+        {
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
+}
 
 //
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -169,8 +181,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
-    case WM_CREATE:
-        CreateWindow(L"static", L"Only Text", WS_CHILD | WS_VISIBLE, 20, 20, 100, 25, hWnd, (HMENU)-1, hInst, NULL);
+    case WM_LBUTTONDOWN:
+        DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, AboutDlgProc);
         break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
         InvalidateRect(hWnd, NULL, TRUE);
