@@ -9,6 +9,8 @@
 
 int x;
 int y;
+HWND hDlg;
+HWND hMainWnd;
 WCHAR str[128];
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -112,6 +114,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
+   hMainWnd = hWnd;
 
    return TRUE;
 }
@@ -130,14 +133,15 @@ BOOL CALLBACK AboutDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
         int wmId = LOWORD(wParam);
         switch (wmId)
         {
-        case IDOK:
+        case ID_CHANGE:
             GetDlgItemText(hDlg, IDC_STR, str, 128);
             x = GetDlgItemInt(hDlg, IDC_X, NULL, FALSE);
             y = GetDlgItemInt(hDlg, IDC_Y, NULL, FALSE);
-            EndDialog(hDlg, 1);
+            InvalidateRect(hMainWnd, NULL, TRUE);
             return TRUE;
-        case IDCANCEL:
-            EndDialog(hDlg, 0);
+        case ID_CLOSE:
+            DestroyWindow(hDlg);
+            hDlg = NULL;
             return TRUE;
         }
         break;
@@ -193,9 +197,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_LBUTTONDOWN:
-        if (DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, AboutDlgProc) == 1)
-        {
-            InvalidateRect(hWnd, NULL, TRUE);
+        if (!IsWindow(hDlg)) {
+            hDlg = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG1),hWnd,AboutDlgProc);
+            ShowWindow(hDlg, SW_SHOW);
         }
         break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출

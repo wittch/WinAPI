@@ -20,8 +20,9 @@
 #define IDD_DIALOG1                     132
 #define IDC_X                           1000
 #define IDC_Y                           1001
-#define IDC_EDIT3                       1002
 #define IDC_STR                         1002
+#define ID_CHANGE                       1003
+#define ID_CLOSE                        1004
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -36,7 +37,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
