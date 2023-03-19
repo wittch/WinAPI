@@ -6,6 +6,8 @@
 #include <cmath>
 #include "resource.h"
 #include <commdlg.h>
+#include <iostream>
+
 #define MAX_LOADSTRING 100
 
 LOGFONT lf;
@@ -129,59 +131,160 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
-    CHOOSEFONT CFT;
-    HFONT MyFont, OldFont;
+
+    static int MousePosX = 0;
+    static int MousePosY = 0;
+    static int PenWidth = 1;
+    static BOOL bDraw = FALSE;
+    static COLORREF PenColor = RGB(0, 0, 0);
+
     switch (message)
     {
     case WM_COMMAND:
-        {
-            
-            int wmId = LOWORD(wParam);
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
+    {
 
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-            InvalidateRect(hWnd, NULL, TRUE);
-        }
-        break;
-    case WM_PAINT:
+        int wmId = LOWORD(wParam);
+        // 메뉴 선택을 구문 분석합니다:
+        switch (wmId)
         {
-            PAINTSTRUCT ps;
-            hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-            MyFont = CreateFontIndirect(&lf);
-            OldFont = (HFONT)SelectObject(hdc, MyFont);
-            TextOut(hdc, 100, 100, str, wcslen(str));
-            SelectObject(hdc, OldFont);
-            DeleteObject(MyFont);
-            EndPaint(hWnd, &ps);
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        break;
+        InvalidateRect(hWnd, NULL, TRUE);
+    }
+    break;
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+
+        hdc = BeginPaint(hWnd, &ps);
+
+        EndPaint(hWnd, &ps);
+    }
+    break;
     case WM_CREATE:
-        lf.lfHeight = 20;
-        wcscpy_s(lf.lfFaceName, L"명조");
         break;
     case WM_LBUTTONDOWN:
-        memset(&CFT, 0, sizeof(CHOOSEFONT));
-        CFT.lStructSize = sizeof(CHOOSEFONT);
-        CFT.hwndOwner = hWnd;
-        CFT.lpLogFont = &lf;
-        CFT.Flags = CF_EFFECTS | CF_SCREENFONTS;
-        if (ChooseFont(&CFT))
+        bDraw = TRUE;
+        MousePosX = LOWORD(lParam);
+        MousePosY = HIWORD(lParam);
+        break;
+    case WM_LBUTTONUP:
+        bDraw = FALSE;
+        MousePosX = 0;
+        MousePosY = 0;
+        break;
+    case WM_MOUSEMOVE:
+        if (bDraw)
         {
-            InvalidateRect(hWnd, NULL, TRUE);
+            HPEN CurPen, OldPen;
+
+            hdc = GetDC(hWnd);
+
+            CurPen = CreatePen(PS_SOLID, PenWidth, PenColor);
+            OldPen = (HPEN)SelectObject(hdc, CurPen);
+
+            MoveToEx(hdc, MousePosX, MousePosY, NULL);
+            MousePosX = LOWORD(lParam);
+            MousePosY = HIWORD(lParam);
+            LineTo(hdc, MousePosX, MousePosY);
+
+            SelectObject(hdc, OldPen);
+            DeleteObject(CurPen);
+
+            ReleaseDC(hWnd, hdc);
         }
         break;
+
+    case WM_RBUTTONDOWN:
+    {
+        // 캡쳐를 하기 위해서 화면에서 현재 프로그램을 감춘다.
+        //ShowWindow(hWnd, SW_HIDE);
+
+        // 스크린 전체를 캡쳐하기 위해서 CWindowDC 형식으로 DC를 얻는다.
+        // GetDC의 파라메터에 특정 윈도우 핸들을 넣지 않고 NULL을 넣으면
+        // CWindowDC 형식으로 DC를 얻게 된다.
+        HDC h_screen_dc = ::GetDC(NULL);
+        // 현재 스크린의 해상도를 얻는다.
+        int width = ::GetDeviceCaps(h_screen_dc, HORZRES);
+        int height = ::GetDeviceCaps(h_screen_dc, VERTRES);
+
+
+
+        // DIB의 형식을 정의한다.
+        BITMAPINFO dib_define;
+        dib_define.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        dib_define.bmiHeader.biWidth = width;
+        dib_define.bmiHeader.biHeight = height;
+        dib_define.bmiHeader.biPlanes = 1;
+        dib_define.bmiHeader.biBitCount = 24;
+        dib_define.bmiHeader.biCompression = BI_RGB;
+        dib_define.bmiHeader.biSizeImage = (((width * 24 + 31) & ~31) >> 3) * height;
+        dib_define.bmiHeader.biXPelsPerMeter = 0;
+        dib_define.bmiHeader.biYPelsPerMeter = 0;
+        dib_define.bmiHeader.biClrImportant = 0;
+        dib_define.bmiHeader.biClrUsed = 0;
+
+        // DIB의 내부 이미지 비트 패턴을 참조할 포인터 변수
+        BYTE* p_image_data = NULL;
+
+        // dib_define에 정의된 내용으로 DIB를 생성한다.
+        HBITMAP h_bitmap = ::CreateDIBSection(h_screen_dc, &dib_define, DIB_RGB_COLORS, (void**)&p_image_data, 0, 0);
+
+        // 이미지를 추출하기 위해서 가상 DC를 생성한다. 메인 DC에서는 직접적으로 비트맵에 접근하여
+        // 이미지 패턴을 얻을 수 없기 때문이다.
+        HDC h_memory_dc = ::CreateCompatibleDC(h_screen_dc);
+
+        // 가상 DC에 이미지를 추출할 비트맵을 연결한다.
+        HBITMAP h_old_bitmap = (HBITMAP)::SelectObject(h_memory_dc, h_bitmap);
+
+        // 현재 스크린 화면을 캡쳐한다.
+        ::BitBlt(h_memory_dc, 0, 0, width, height, h_screen_dc, 0, 0, SRCCOPY);
+        // 본래의 비트맵으로 복구한다.
+        ::SelectObject(h_memory_dc, h_old_bitmap);
+
+        // 가상 DC를 제거한다.
+        DeleteDC(h_memory_dc);
+
+        // DIB 파일의 헤더 내용을 구성한다.
+        BITMAPFILEHEADER dib_format_layout;
+        ZeroMemory(&dib_format_layout, sizeof(BITMAPFILEHEADER));
+        dib_format_layout.bfType = *(WORD*)"BM";
+        dib_format_layout.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + dib_define.bmiHeader.biSizeImage;
+        dib_format_layout.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+        // DIB 파일을 생성한다.
+        FILE* p_file;
+        fopen_s(&p_file, "image.bmp", "wb");
+        if (p_file != NULL) {
+            fwrite(&dib_format_layout, 1, sizeof(BITMAPFILEHEADER), p_file);
+            fwrite(&dib_define, 1, sizeof(BITMAPINFOHEADER), p_file);
+            fwrite(p_image_data, 1, dib_define.bmiHeader.biSizeImage, p_file);
+            fclose(p_file);
+        }
+
+        // 사용했던 비트맵과 DC 를 해제한다.
+        if (NULL != h_bitmap) DeleteObject(h_bitmap);
+        if (NULL != h_screen_dc) ::ReleaseDC(NULL, h_screen_dc);
+
+        // 캡쳐를 하기 위해서 감춘 화면을 다시 보여준다.
+        //ShowWindow(hWnd, SW_SHOW);
+
+    }
+
+        break;
     case WM_SIZE://윈도우의 크기가 변경될 때 호출
+
+        
+
+
         InvalidateRect(hWnd, NULL, TRUE);
 
         //같은 방법으로 lParam 이용
