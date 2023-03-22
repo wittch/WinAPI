@@ -133,26 +133,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case 0:
             break;
         case 1:
-            SetROP2(hdc, R2_NOT);
-
-
-            /** 그려진 선을 지우는 코드 */
-            //click 한 점으로 부터 마지막으로 있던 Cursor위치의 가로축
-            MoveToEx(hdc, MousePosX, MousePosY, NULL);
-            LineTo(hdc, OldMousePosX, MousePosY);
-
-            //click 한 점으로 부터 마지막으로 있던 Cursor위치의 세로축
-            MoveToEx(hdc, MousePosX, MousePosY, NULL);
-            LineTo(hdc, MousePosX, OldMousePosY);
-
-
-            //마지막 Cursor위치로부터 Click한 점까지의 가로축
-            MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-            LineTo(hdc, OldMousePosX, MousePosY);
-
-            //마지막 Cursor위치로부터 Click한 점까지의 세로축
-            MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-            LineTo(hdc, MousePosX, OldMousePosY);
+            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
 
             ReleaseDC(hWnd, hdc);
             hdc = GetDC(hWnd);
@@ -160,26 +141,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             Rectangle(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
             break;
         case 2:
-            SetROP2(hdc, R2_NOT);
 
-
-            /** 그려진 선을 지우는 코드 */
-            //click 한 점으로 부터 마지막으로 있던 Cursor위치의 가로축
-            MoveToEx(hdc, MousePosX, MousePosY, NULL);
-            LineTo(hdc, OldMousePosX, MousePosY);
-
-            //click 한 점으로 부터 마지막으로 있던 Cursor위치의 세로축
-            MoveToEx(hdc, MousePosX, MousePosY, NULL);
-            LineTo(hdc, MousePosX, OldMousePosY);
-
-
-            //마지막 Cursor위치로부터 Click한 점까지의 가로축
-            MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-            LineTo(hdc, OldMousePosX, MousePosY);
-
-            //마지막 Cursor위치로부터 Click한 점까지의 세로축
-            MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-            LineTo(hdc, MousePosX, OldMousePosY);
+            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
 
             ReleaseDC(hWnd, hdc);
             hdc = GetDC(hWnd);
@@ -216,51 +179,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else
             {
-
-                SetROP2(hdc, R2_NOT);
-
-                //함수로 선언하면 DC를 못가져오나..?
-                /*DrawTempRectangle(hWnd,hdc, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
-                DrawTempRectangle(hWnd, hdc, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);*/
-
-
-                /** 그려진 선을 지우는 코드 */
-                //click 한 점으로 부터 마지막으로 있던 Cursor위치의 가로축
-                MoveToEx(hdc, MousePosX, MousePosY, NULL);
-                LineTo(hdc, OldMousePosX, MousePosY);
-
-                //click 한 점으로 부터 마지막으로 있던 Cursor위치의 세로축
-                MoveToEx(hdc, MousePosX, MousePosY, NULL);
-                LineTo(hdc, MousePosX, OldMousePosY);
-
-
-                //마지막 Cursor위치로부터 Click한 점까지의 가로축
-                MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-                LineTo(hdc, OldMousePosX, MousePosY);
-
-                //마지막 Cursor위치로부터 Click한 점까지의 세로축
-                MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-                LineTo(hdc, MousePosX, OldMousePosY);
-
+                ///** 그려진 선을 지우는 코드 */
+                DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
+                
                 OldMousePosX = LOWORD(lParam);
                 OldMousePosY = HIWORD(lParam);
 
-                //** 선 그리기 코드 */
-                MoveToEx(hdc, MousePosX, MousePosY, NULL);
-                LineTo(hdc, OldMousePosX, MousePosY);
-
-                //click 한 점으로 부터 마지막으로 있던 Cursor위치의 세로축
-                MoveToEx(hdc, MousePosX, MousePosY, NULL);
-                LineTo(hdc, MousePosX, OldMousePosY);
-
-
-                //마지막 Cursor위치로부터 Click한 점까지의 가로축
-                MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-                LineTo(hdc, OldMousePosX, MousePosY);
-
-                //마지막 Cursor위치로부터 Click한 점까지의 세로축
-                MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
-                LineTo(hdc, MousePosX, OldMousePosY);
+                ////** 선 그리기 코드 */
+                DrawTempRectangle(hWnd,  MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
 
             }
 
@@ -381,29 +307,33 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     return (int)msg.wParam;
 }
 
-void DrawTempRectangle(HWND hWnd, HDC m_hdc, int PosX, int PosY, int PrevPosX, int PrevPosY, LPARAM lParam)
+void DrawTempRectangle(HWND hWnd, int PosX, int PosY, int PrevPosX, int PrevPosY, LPARAM lParam)
 {
 
-    m_hdc = GetDC(hWnd);
+    
+    HDC hdc;
+    hdc = GetDC(hWnd);
+
+    SetROP2(hdc, R2_NOT);
     //click 한 점으로 부터 마지막으로 있던 Cursor위치의 가로축
-    MoveToEx(m_hdc, PosX, PosY, NULL);
-    LineTo(m_hdc, PrevPosX, PosY);
+    MoveToEx(hdc, PosX, PosY, NULL);
+    LineTo(hdc, PrevPosX, PosY);
 
     //click 한 점으로 부터 마지막으로 있던 Cursor위치의 세로축
-    MoveToEx(m_hdc, PosX, PosY, NULL);
-    LineTo(m_hdc, PosX, PrevPosY);
+    MoveToEx(hdc, PosX, PosY, NULL);
+    LineTo(hdc, PosX, PrevPosY);
 
 
     //마지막 Cursor위치로부터 Click한 점까지의 가로축
-    MoveToEx(m_hdc, PrevPosX, PrevPosY, NULL);
-    LineTo(m_hdc, PrevPosX, PosY);
+    MoveToEx(hdc, PrevPosX, PrevPosY, NULL);
+    LineTo(hdc, PrevPosX, PosY);
 
     //마지막 Cursor위치로부터 Click한 점까지의 세로축
-    MoveToEx(m_hdc, PrevPosX, PrevPosY, NULL);
-    LineTo(m_hdc, PosX, PrevPosY);
+    MoveToEx(hdc, PrevPosX, PrevPosY, NULL);
+    LineTo(hdc, PosX, PrevPosY);
 
     PrevPosX = LOWORD(lParam);
     PrevPosY = HIWORD(lParam);
 
-    ReleaseDC(hWnd, m_hdc);
+    ReleaseDC(hWnd, hdc);
 }
