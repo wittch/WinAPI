@@ -18,11 +18,18 @@
 #define IDI_ICON1                       130
 #define IDR_ACCELERATOR1                131
 #define IDD_DIALOG1                     132
-#define IDC_X                           1000
-#define IDC_Y                           1001
-#define IDC_STR                         1002
+#define IDD_DIALOG2                     134
 #define ID_CHANGE                       1003
 #define ID_CLOSE                        1004
+#define IDC_BUTTON1                     1005
+#define IDC_LIST2                       1007
+#define IDC_TAB1                        1009
+#define IDC_COMBO1                      1012
+#define IDC_LIST3                       1013
+#define IDC_COMBOBOXEX1                 1016
+#define IDC_RADIO1                      1021
+#define IDC_RADIO2                      1022
+#define IDC_RADIO3                      1023
 #define ID_32771                        32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -35,9 +42,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
