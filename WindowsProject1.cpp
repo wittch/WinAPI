@@ -101,7 +101,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
 
         hdc = BeginPaint(hWnd, &ps);
+        if (!bShape) 
+        {
+            HPEN CurPen, OldPen;
+            SetROP2(hdc, R2_NOT);
+            CurPen = CreatePen(PS_SOLID, PenWidth, PenColor);
+            OldPen = (HPEN)SelectObject(hdc, CurPen);
 
+            MoveToEx(hdc, OldMousePosX, OldMousePosY, NULL);
+            LineTo(hdc, MousePosX, MousePosY);
+
+
+            SelectObject(hdc, OldPen);
+            DeleteObject(CurPen);
+        }
         EndPaint(hWnd, &ps);
     }
 
@@ -137,8 +150,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             ReleaseDC(hWnd, hdc);
             hdc = GetDC(hWnd);
-
-            Rectangle(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
+            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
+            //Rectangle(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
             break;
         case 2:
 
@@ -169,9 +182,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 OldPen = (HPEN)SelectObject(hdc, CurPen);
 
                 MoveToEx(hdc, MousePosX, MousePosY, NULL);
+                OldMousePosX = MousePosX;
+                OldMousePosY = MousePosY;
                 MousePosX = LOWORD(lParam);
                 MousePosY = HIWORD(lParam);
-                LineTo(hdc, MousePosX, MousePosY);
+                //LineTo(hdc, MousePosX, MousePosY);
 
 
                 SelectObject(hdc, OldPen);
@@ -192,6 +207,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             ReleaseDC(hWnd, hdc);
         }
+        InvalidateRect(hWnd, NULL, NULL);
         break;
 
   
