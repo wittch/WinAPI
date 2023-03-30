@@ -101,8 +101,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
 
         hdc = BeginPaint(hWnd, &ps);
-        if (!bShape) 
-        {
+        
+        switch (bShape) {
+        case 0:
             HPEN CurPen, OldPen;
             SetROP2(hdc, R2_NOT);
             CurPen = CreatePen(PS_SOLID, PenWidth, PenColor);
@@ -114,6 +115,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             SelectObject(hdc, OldPen);
             DeleteObject(CurPen);
+            break;
+        case 1:
+            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
+            EndPaint(hWnd, &ps);
+            hdc = BeginPaint(hWnd, &ps);
+            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
+            break;
+        case 2:
+
+            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
+
+            EndPaint(hWnd, &ps);
+            hdc = BeginPaint(hWnd, &ps);
+
+            Ellipse(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
+
+            break;
         }
         EndPaint(hWnd, &ps);
     }
@@ -139,35 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_LBUTTONUP:
         bDraw = FALSE;
-        
-        hdc = GetDC(hWnd);
-        switch (bShape)
-        {
-        case 0:
-            break;
-        case 1:
-            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
-
-            ReleaseDC(hWnd, hdc);
-            hdc = GetDC(hWnd);
-            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
-            //Rectangle(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
-            break;
-        case 2:
-
-            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
-
-            ReleaseDC(hWnd, hdc);
-            hdc = GetDC(hWnd);
-
-            Ellipse(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
-        break;
-        }
-            
-        
-        ReleaseDC(hWnd, hdc);
-        
-
+        InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_MOUSEMOVE:
         if (bDraw)
