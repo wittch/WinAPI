@@ -243,7 +243,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     return (INT_PTR)FALSE;
 }
 
-BOOL CALLBACK DrawSettingDlg(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK WindowsProject1::DrawSettingDlg(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 
     HDC hdc;
@@ -343,3 +343,4 @@ void DrawTempRectangle(HWND hWnd, int PosX, int PosY, int PrevPosX, int PrevPosY
 
     ReleaseDC(hWnd, hdc);
 }
+

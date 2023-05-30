@@ -24,7 +24,7 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-BOOL	CALLBACK	DrawSettingDlg(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
+//BOOL	CALLBACK	DrawSettingDlg(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
 void DrawTempRectangle(HWND hWnd, int PosX, int PosY, int PrevPosX, int PrevPosY, LPARAM lParam);
 //HBRUSH SetCanvas(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
 
@@ -35,7 +35,7 @@ public:
 	WindowsProject1();
 
 	
-
+	BOOL	CALLBACK	DrawSettingDlg(HWND hDlg, UINT Message, WPARAM wParam, LPARAM lParam);
 	
 
 protected:
