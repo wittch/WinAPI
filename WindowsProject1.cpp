@@ -117,17 +117,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DeleteObject(CurPen);
             break;
         case 1:
-            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
-            EndPaint(hWnd, &ps);
-            hdc = BeginPaint(hWnd, &ps);
-            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
             break;
         case 2:
 
-            DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
-
-            EndPaint(hWnd, &ps);
-            hdc = BeginPaint(hWnd, &ps);
+            
 
             Ellipse(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
 
@@ -157,7 +150,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_LBUTTONUP:
         bDraw = FALSE;
-        InvalidateRect(hWnd, NULL, FALSE);
+        //InvalidateRect(hWnd, NULL, FALSE);
         break;
     case WM_MOUSEMOVE:
         if (bDraw)
@@ -181,23 +174,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 SelectObject(hdc, OldPen);
                 DeleteObject(CurPen);
+                InvalidateRect(hWnd, NULL, NULL);
             }
             else
             {
+
+                HBRUSH hBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+                HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
                 ///** 그려진 선을 지우는 코드 */
                 DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
                 
                 OldMousePosX = LOWORD(lParam);
                 OldMousePosY = HIWORD(lParam);
 
-                ////** 선 그리기 코드 */
-                DrawTempRectangle(hWnd,  MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
+                
 
+                const RECT EllipseRect = { MousePosX, MousePosY, OldMousePosX, OldMousePosY };
+                InvalidateRect(hWnd, &EllipseRect, TRUE);
+
+                SelectObject(hdc, hOldBrush);
+                DeleteObject(hBrush);
             }
 
             ReleaseDC(hWnd, hdc);
         }
-        InvalidateRect(hWnd, NULL, NULL);
+        
         break;
 
   
