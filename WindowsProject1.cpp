@@ -123,7 +123,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
 
             Ellipse(hdc, OldMousePosX, OldMousePosY, MousePosX, MousePosY);
-
+            //DrawTempEllipse(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
             break;
         }
         EndPaint(hWnd, &ps);
@@ -175,12 +175,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SelectObject(hdc, OldPen);
                 DeleteObject(CurPen);
                 InvalidateRect(hWnd, NULL, NULL);
+
+               
             }
             else
             {
 
-                HBRUSH hBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
-                HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+             
                 ///** 그려진 선을 지우는 코드 */
                 DrawTempRectangle(hWnd, MousePosX, MousePosY, OldMousePosX, OldMousePosY, lParam);
                 
@@ -192,8 +193,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 const RECT EllipseRect = { MousePosX, MousePosY, OldMousePosX, OldMousePosY };
                 InvalidateRect(hWnd, &EllipseRect, TRUE);
 
-                SelectObject(hdc, hOldBrush);
-                DeleteObject(hBrush);
+                
+                InvalidateRect(hWnd, NULL, NULL);
             }
 
             ReleaseDC(hWnd, hdc);
@@ -345,3 +346,60 @@ void DrawTempRectangle(HWND hWnd, int PosX, int PosY, int PrevPosX, int PrevPosY
     ReleaseDC(hWnd, hdc);
 }
 
+void DrawTempEllipse(HWND hWnd, int PosX, int PosY, int PrevPosX, int PrevPosY, LPARAM lParam)
+{
+    HDC hdc;
+    hdc = GetDC(hWnd);
+
+    PAINTSTRUCT ps;
+    hdc = BeginPaint(hWnd, &ps);
+
+    // 펜을 생성하고 선택합니다. 여기서는 두께 2, 색상 빨간색의 펜을 생성하였습니다.
+    HPEN hPen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+    SetROP2(hdc, R2_XORPEN);
+
+
+
+    POINT points[11] = { 0 ,};
+    
+
+    points[0] = { PrevPosX, (PrevPosY + PosY) };
+    points[6] = { PosX, (PrevPosY + PosY) };
+
+    long Xlength = (PosX - PrevPosX) / 2;
+    long Ylength = (PosY - PrevPosY) / 2;
+
+    for (int i = 1; i < 5; i++)
+    {
+        points[i] = { (points[0].x + Xlength / 3 * i), transformXtoY(Xlength / 3 * i, Xlength, Ylength) };
+    }
+
+    for (int i = 6; i < 11; i++)
+    {
+        points[i] = { (points[0].x + Xlength / 3 * i), -transformXtoY(Xlength / 3 * i, Xlength, Ylength) };
+    }
+
+
+    Polyline(hdc, points, 11);
+
+    PrevPosX = LOWORD(lParam);
+    PrevPosY = HIWORD(lParam);
+
+    // 원래 펜으로 돌려놓습니다.
+    SelectObject(hdc, hOldPen);
+
+    // 생성한 펜을 삭제합니다.
+    DeleteObject(hPen);
+
+    EndPaint(hWnd, &ps);
+
+    ReleaseDC(hWnd, hdc);
+
+}
+long transformXtoY(long NumX, long Xlength, long Ylength)
+{
+    return Ylength* sqrt(1 - (pow(NumX, 2) / pow(Xlength, 2)));
+
+}
